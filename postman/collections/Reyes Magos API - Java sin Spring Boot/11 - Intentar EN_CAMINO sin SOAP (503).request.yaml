@@ -1,0 +1,14 @@
+$kind: http-request
+url: "{{baseUrl}}/api/caravanas/{{caravanaId}}/estado"
+method: PATCH
+headers:
+  Authorization: Bearer {{jefeToken}}
+  Content-Type: application/json
+body:
+  type: text
+  content: '{"estado":"EN_CAMINO"}'
+scripts:
+  - type: afterResponse
+    code: pm.test('SOAP caído 503 (si no está configurado)', () => pm.response.to.have.status(503));
+    language: text/javascript
+order: 16000

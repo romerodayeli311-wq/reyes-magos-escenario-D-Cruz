@@ -1,0 +1,15 @@
+$kind: http-request
+name: "10C - Regla de negocio: paradas pendientes al llegar a Belén (422)"
+description: "Precondición: primero debe haberse cambiado la caravana a EN_CAMINO con SOAP VISIBLE y debe quedar al menos una parada PLANIFICADA. Debe responder 422."
+url: "{{baseUrl}}/api/caravanas/{{caravanaId}}/estado"
+method: PATCH
+headers:
+  Authorization: Bearer {{jefeToken}}
+  Content-Type: application/json
+body:
+  type: json
+  content: |-
+    {
+      "estado": "EN_BELEN"
+    }
+order: 15000

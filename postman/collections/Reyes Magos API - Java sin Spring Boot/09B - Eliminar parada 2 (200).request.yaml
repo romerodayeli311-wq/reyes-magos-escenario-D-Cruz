@@ -1,0 +1,7 @@
+$kind: http-request
+description: Elimina la segunda parada, que continúa PLANIFICADA tras el intento 409.
+url: "{{baseUrl}}/api/paradas/{{parada2Id}}"
+method: DELETE
+headers:
+  Authorization: Bearer {{jefeToken}}
+order: 12000

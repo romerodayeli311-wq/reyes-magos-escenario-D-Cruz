@@ -1,0 +1,15 @@
+LINUX (Zorin/Ubuntu)
+1) Abrir terminal general: Ctrl + Alt + T.
+2) Ir a la carpeta del proyecto, por ejemplo: cd ~/Descargas/reyes_magos_java
+3) Abrir VS Code desde esa carpeta: code .
+4) Ejecutar: mvn clean compile exec:java -Dexec.mainClass="com.elkin.reyes.Main"
+5) Probar: GET http://localhost:8080/ en Postman.
+
+GITHUB (cuando ya se haya probado localmente):
+git init
+git add .
+git commit -m "Entrega escenario D - Logistica Reyes Magos"
+git branch -M main
+git remote add origin https://github.com/USUARIO/reyes-magos-escenario-d.git
+git push -u origin main
+Reemplaza USUARIO por tu usuario real y crea previamente el repositorio vacío en GitHub.

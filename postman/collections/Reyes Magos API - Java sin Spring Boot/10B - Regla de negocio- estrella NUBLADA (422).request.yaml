@@ -1,0 +1,15 @@
+$kind: http-request
+name: "10B - Regla de negocio: estrella NUBLADA (422)"
+description: Requiere configurar el mock SOAP para responder NUBLADA. Debe responder 422 y conservar la caravana en DETENIDA.
+url: "{{baseUrl}}/api/caravanas/{{caravanaId}}/estado"
+method: PATCH
+headers:
+  Authorization: Bearer {{jefeToken}}
+  Content-Type: application/json
+body:
+  type: json
+  content: |-
+    {
+      "estado": "EN_CAMINO"
+    }
+order: 14000

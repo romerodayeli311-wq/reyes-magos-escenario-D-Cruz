@@ -1,0 +1,14 @@
+$kind: http-request
+url: "{{baseUrl}}/api/caravanas/{{caravanaId}}/paradas"
+method: POST
+headers:
+  Authorization: Bearer {{jefeToken}}
+  Content-Type: application/json
+body:
+  type: text
+  content: '{"ciudad":"Bagdad","orden":1,"diasEstancia":1}'
+scripts:
+  - type: afterResponse
+    code: if (pm.response.code === 201) { const data = pm.response.json(); pm.collectionVariables.set('parada1Id', data.id); }
+    language: text/javascript
+order: 9000

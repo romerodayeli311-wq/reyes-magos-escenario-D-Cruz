@@ -1,0 +1,42 @@
+digraph G { graph [rankdir=LR, bgcolor="white", pad="0.25", nodesep="0.35", ranksep="0.6", fontname="Arial", label="Arquitectura — Logística de los Reyes Magos (Java sin Spring Boot)", labelloc=t, fontsize=20]; node [shape=box, style="rounded,filled", fontname="Arial", fontsize=10, margin="0.16,0.10", color="#52606d"]; edge [fontname="Arial", fontsize=9, color="#52606d", arrowsize=0.8];
+Postman [label="Cliente
+Postman", fillcolor="#dae8fc"];
+HTTP [label="Servidor HTTP Java
+HttpServer · Main.java · :8080", fillcolor="#d5e8d4"];
+Auth [label="Middleware de seguridad
+Bearer token · 401 / 403
+SecurityMiddleware.java", fillcolor="#fff2cc"];
+Routes [label="Rutas REST
+GET/POST/PUT/PATCH/DELETE
+/api/caravanas · /api/paradas", fillcolor="#e1d5e7"];
+Handler [label="Controlador / Handler
+ApiHandler.java
+HTTP + JSON + códigos", fillcolor="#e1d5e7"];
+Errors [label="Manejador global de errores
+ApiHandler catch
+JSON estándar: codigo, mensaje, detalles, timestamp, ruta", fillcolor="#f8cecc"];
+Service [label="Servicios
+CaravanaService.java
+Reglas y validaciones de negocio", fillcolor="#d5e8d4"];
+Repos [label="Repositorios JDBC
+CaravanaRepository · ParadaRepository", fillcolor="#fff2cc"];
+DB [shape=cylinder,label="Base H2
+Database.java
+caravanas · paradas",fillcolor="#dae8fc"];
+Adapter [label="Adaptador SOAP
+EstrellaAdapter.java
+XML ↔ Ruta · timeout 3 s
+2 intentos con backoff",fillcolor="#f5f5f5"];
+SOAP [label="Servicio externo SOAP
+EstrellaDeBelenService
+ConsultarRuta: VISIBLE / NUBLADA / Fault",fillcolor="#f5f5f5"];
+Failure [label="Fallo controlado
+Fault/timeout → 503
+NUBLADA → 422
+Caravana sigue DETENIDA",fillcolor="#f8cecc"];
+Postman -> HTTP -> Auth -> Routes -> Handler -> Service -> Repos -> DB;
+Handler -> Errors [style=dashed,color="#b85450",label="excepciones"];
+Service -> Adapter [label="antes de EN_CAMINO"];
+Adapter -> SOAP;
+Adapter -> Failure [style=dashed,color="#b85450",label="respuesta SOAP"];
+}

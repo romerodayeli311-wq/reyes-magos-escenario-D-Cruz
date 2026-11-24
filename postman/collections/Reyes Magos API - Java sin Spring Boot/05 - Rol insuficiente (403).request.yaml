@@ -1,0 +1,14 @@
+$kind: http-request
+url: "{{baseUrl}}/api/caravanas"
+method: POST
+headers:
+  Authorization: Bearer {{ayudanteToken}}
+  Content-Type: application/json
+body:
+  type: text
+  content: '{"rey":"GASPAR","ofrenda":"MIRRA","origen":"Oriente","camellos":3}'
+scripts:
+  - type: afterResponse
+    code: pm.test('Prohibido 403', () => pm.response.to.have.status(403));
+    language: text/javascript
+order: 7000

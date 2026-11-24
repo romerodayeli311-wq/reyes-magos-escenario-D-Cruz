@@ -1,0 +1,14 @@
+$kind: http-request
+url: "{{baseUrl}}/api/caravanas"
+method: POST
+headers:
+  Authorization: Bearer {{jefeToken}}
+  Content-Type: application/json
+body:
+  type: text
+  content: '{"rey":"GASPAR","ofrenda":"MIRRA","origen":"Oriente","camellos":20}'
+scripts:
+  - type: afterResponse
+    code: pm.test('Validación 400', () => pm.response.to.have.status(400));
+    language: text/javascript
+order: 5000

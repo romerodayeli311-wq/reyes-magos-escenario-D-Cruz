@@ -1,0 +1,5 @@
+$kind: http-request
+description: Consulta pública de la caravana creada en el primer request.
+url: "{{baseUrl}}/api/caravanas/{{caravanaId}}"
+method: GET
+order: 3000

@@ -1,0 +1,17 @@
+$kind: http-request
+description: Actualiza una caravana mientras sigue DETENIDA.
+url: "{{baseUrl}}/api/caravanas/{{caravanaId}}"
+method: PUT
+headers:
+  Authorization: Bearer {{jefeToken}}
+  Content-Type: application/json
+body:
+  type: json
+  content: |-
+    {
+      "rey": "MELCHOR",
+      "ofrenda": "ORO",
+      "origen": "Persia",
+      "camellos": 7
+    }
+order: 4000

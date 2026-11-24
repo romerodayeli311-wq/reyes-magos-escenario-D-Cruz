@@ -1,0 +1,516 @@
+{
+  "info": {
+    "name": "Reyes Magos API - Java sin Spring Boot",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": "\n\nSecuencia sugerida: ejecutar 01, 02, 02B, 07 y 08. Los IDs se guardan automáticamente. Los casos 10B/10C requieren mock SOAP con la respuesta indicada y sus precondiciones. El caso 11 simula SOAP no disponible.\n\nSecuencia sugerida: ejecutar 01, 02, 02B, 07 y 08. Los IDs se guardan automáticamente. Los casos 10B/10C requieren mock SOAP con la respuesta indicada y sus precondiciones. El caso 11 simula SOAP no disponible.\n\nSecuencia sugerida: ejecutar 01, 02, 02B, 07 y 08. Los IDs se guardan automáticamente. Los casos 10B/10C requieren mock SOAP con la respuesta indicada y sus precondiciones. El caso 11 simula SOAP no disponible.\n\nSecuencia sugerida: ejecutar 01, 02, 02B, 07 y 08. Los IDs se guardan automáticamente. Los casos 10B/10C requieren mock SOAP con la respuesta indicada y sus precondiciones. El caso 11 simula SOAP no disponible.\nIncluye también actualización de caravana (PUT) y eliminación de parada (DELETE)."
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8080"
+    },
+    {
+      "key": "jefeToken",
+      "value": "dev-jefe-caravana"
+    },
+    {
+      "key": "ayudanteToken",
+      "value": "dev-ayudante"
+    },
+    {
+      "key": "caravanaId",
+      "value": "1"
+    },
+    {
+      "key": "parada1Id",
+      "value": "1"
+    },
+    {
+      "key": "parada2Id",
+      "value": "2"
+    }
+  ],
+  "item": [
+    {
+      "name": "01 - Crear caravana (201)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{jefeToken}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"rey\": \"MELCHOR\",\n  \"ofrenda\": \"ORO\",\n  \"origen\": \"Persia\",\n  \"camellos\": 6\n}"
+        },
+        "url": "{{baseUrl}}/api/caravanas"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "if (pm.response.code === 201) { const data = pm.response.json(); pm.collectionVariables.set('caravanaId', data.id); }"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "02 - Listar caravanas (200)",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/api/caravanas"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Consulta 200', () => pm.response.to.have.status(200));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "02B - Consultar caravana por ID (200)",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/caravanas/{{caravanaId}}",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "caravanas",
+            "{{caravanaId}}"
+          ]
+        },
+        "description": "Consulta pública de la caravana creada en el primer request."
+      }
+    },
+    {
+      "name": "03B - Actualizar caravana (200)",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{jefeToken}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/caravanas/{{caravanaId}}",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "caravanas",
+            "{{caravanaId}}"
+          ]
+        },
+        "description": "Actualiza una caravana mientras sigue DETENIDA.",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"rey\": \"MELCHOR\",\n  \"ofrenda\": \"ORO\",\n  \"origen\": \"Persia\",\n  \"camellos\": 7\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "03 - Crear caravana inválida (400)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{jefeToken}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\"rey\":\"GASPAR\",\"ofrenda\":\"MIRRA\",\"origen\":\"Oriente\",\"camellos\":20}"
+        },
+        "url": "{{baseUrl}}/api/caravanas"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Validación 400', () => pm.response.to.have.status(400));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "04 - Sin token (401)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\"rey\":\"GASPAR\",\"ofrenda\":\"MIRRA\",\"origen\":\"Oriente\",\"camellos\":3}"
+        },
+        "url": "{{baseUrl}}/api/caravanas"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('No autorizado 401', () => pm.response.to.have.status(401));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "05 - Rol insuficiente (403)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{ayudanteToken}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\"rey\":\"GASPAR\",\"ofrenda\":\"MIRRA\",\"origen\":\"Oriente\",\"camellos\":3}"
+        },
+        "url": "{{baseUrl}}/api/caravanas"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Prohibido 403', () => pm.response.to.have.status(403));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "06 - Caravana inexistente (404)",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/api/caravanas/999999"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('No encontrado 404', () => pm.response.to.have.status(404));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "07 - Agregar parada 1 (201)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{jefeToken}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\"ciudad\":\"Bagdad\",\"orden\":1,\"diasEstancia\":1}"
+        },
+        "url": "{{baseUrl}}/api/caravanas/{{caravanaId}}/paradas"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "if (pm.response.code === 201) { const data = pm.response.json(); pm.collectionVariables.set('parada1Id', data.id); }"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "08 - Agregar parada 2 (201)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{jefeToken}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\"ciudad\":\"Jerusalen\",\"orden\":2,\"diasEstancia\":2}"
+        },
+        "url": "{{baseUrl}}/api/caravanas/{{caravanaId}}/paradas"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "if (pm.response.code === 201) { const data = pm.response.json(); pm.collectionVariables.set('parada2Id', data.id); }"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "09 - Cumplir parada 2 antes de la 1 (409)",
+      "request": {
+        "method": "PATCH",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\"estado\":\"CUMPLIDA\"}"
+        },
+        "url": "{{baseUrl}}/api/paradas/{{parada2Id}}/estado"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Orden de paradas 409', () => pm.response.to.have.status(409));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "09B - Eliminar parada 2 (200)",
+      "request": {
+        "method": "DELETE",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{jefeToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/paradas/{{parada2Id}}",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "paradas",
+            "{{parada2Id}}"
+          ]
+        },
+        "description": "Elimina la segunda parada, que continúa PLANIFICADA tras el intento 409."
+      }
+    },
+    {
+      "name": "10 - Transición inválida DETENIDA a EN_BELEN (409)",
+      "request": {
+        "method": "PATCH",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{jefeToken}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\"estado\":\"EN_BELEN\"}"
+        },
+        "url": "{{baseUrl}}/api/caravanas/{{caravanaId}}/estado"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Transición inválida 409', () => pm.response.to.have.status(409));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "10B - Regla de negocio: estrella NUBLADA (422)",
+      "request": {
+        "method": "PATCH",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{jefeToken}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"estado\": \"EN_CAMINO\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/caravanas/{{caravanaId}}/estado",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "caravanas",
+            "{{caravanaId}}",
+            "estado"
+          ]
+        },
+        "description": "Requiere configurar el mock SOAP para responder NUBLADA. Debe responder 422 y conservar la caravana en DETENIDA."
+      }
+    },
+    {
+      "name": "10C - Regla de negocio: paradas pendientes al llegar a Belén (422)",
+      "request": {
+        "method": "PATCH",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{jefeToken}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"estado\": \"EN_BELEN\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/caravanas/{{caravanaId}}/estado",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "caravanas",
+            "{{caravanaId}}",
+            "estado"
+          ]
+        },
+        "description": "Precondición: primero debe haberse cambiado la caravana a EN_CAMINO con SOAP VISIBLE y debe quedar al menos una parada PLANIFICADA. Debe responder 422."
+      }
+    },
+    {
+      "name": "11 - Intentar EN_CAMINO sin SOAP (503)",
+      "request": {
+        "method": "PATCH",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{jefeToken}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\"estado\":\"EN_CAMINO\"}"
+        },
+        "url": "{{baseUrl}}/api/caravanas/{{caravanaId}}/estado"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('SOAP caído 503 (si no está configurado)', () => pm.response.to.have.status(503));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "12 - Ver itinerario (200)",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/api/caravanas/{{caravanaId}}/itinerario"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Itinerario 200', () => pm.response.to.have.status(200));"
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

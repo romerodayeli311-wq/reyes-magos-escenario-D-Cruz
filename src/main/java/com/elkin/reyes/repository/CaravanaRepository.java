@@ -1,0 +1,10 @@
+package com.elkin.reyes.repository;
+import com.elkin.reyes.db.Database; import com.elkin.reyes.model.Caravana; import java.sql.*; import java.util.*;
+public class CaravanaRepository {
+  private Caravana map(ResultSet r)throws SQLException{return new Caravana(r.getLong("id"),r.getString("rey"),r.getString("ofrenda"),r.getString("origen"),r.getInt("camellos"),r.getString("estado"));}
+  public Caravana create(String rey,String ofrenda,String origen,int camellos)throws SQLException{try(Connection c=Database.get();PreparedStatement p=c.prepareStatement("INSERT INTO caravanas(rey,ofrenda,origen,camellos,estado) VALUES(?,?,?,?, 'DETENIDA')",Statement.RETURN_GENERATED_KEYS)){p.setString(1,rey);p.setString(2,ofrenda);p.setString(3,origen);p.setInt(4,camellos);p.executeUpdate();try(ResultSet k=p.getGeneratedKeys()){k.next();return find(k.getLong(1));}}}
+  public Caravana find(long id)throws SQLException{try(Connection c=Database.get();PreparedStatement p=c.prepareStatement("SELECT * FROM caravanas WHERE id=?")){p.setLong(1,id);try(ResultSet r=p.executeQuery()){return r.next()?map(r):null;}}}
+  public List<Caravana> all(String estado)throws SQLException{List<Caravana>a=new ArrayList<>();String q=estado==null?"SELECT * FROM caravanas ORDER BY id":"SELECT * FROM caravanas WHERE estado=? ORDER BY id";try(Connection c=Database.get();PreparedStatement p=c.prepareStatement(q)){if(estado!=null)p.setString(1,estado);try(ResultSet r=p.executeQuery()){while(r.next())a.add(map(r));}}return a;}
+  public void update(long id,String rey,String ofrenda,String origen,int camellos)throws SQLException{try(Connection c=Database.get();PreparedStatement p=c.prepareStatement("UPDATE caravanas SET rey=?,ofrenda=?,origen=?,camellos=? WHERE id=?")){p.setString(1,rey);p.setString(2,ofrenda);p.setString(3,origen);p.setInt(4,camellos);p.setLong(5,id);p.executeUpdate();}}
+  public void state(long id,String estado)throws SQLException{try(Connection c=Database.get();PreparedStatement p=c.prepareStatement("UPDATE caravanas SET estado=? WHERE id=?")){p.setString(1,estado);p.setLong(2,id);p.executeUpdate();}}
+}
