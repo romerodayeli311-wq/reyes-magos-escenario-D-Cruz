@@ -47,7 +47,20 @@ En un entorno real cambia estos valores mediante variables de entorno:
 - `TOKEN_JEFE_CARAVANA`
 - `TOKEN_AYUDANTE`
 - `PORT` (por defecto 8080)
+- `DB_URL` (opcional; por defecto utiliza la base H2 en `./data/reyesdb`)
 - `SOAP_ESTRELLA_URL` (por defecto `http://localhost:8081/soap/estrella`)
+
+La aplicación lee estas variables del entorno del sistema; no carga automáticamente un archivo `.env`. En Linux/Zorin, puedes definirlas en la terminal antes de iniciar la API:
+
+```bash
+export TOKEN_JEFE_CARAVANA="dev-jefe-caravana"
+export TOKEN_AYUDANTE="dev-ayudante"
+export PORT="8080"
+export DB_URL="jdbc:h2:file:./data/reyesdb"
+export SOAP_ESTRELLA_URL="http://localhost:8081/soap/estrella"
+```
+
+Después ejecuta el comando de inicio indicado en la sección 2, en esa misma terminal. Si no defines alguna variable, se utilizará su valor predeterminado.
 
 ## 5. Endpoints
 | Método | Ruta | Acceso |
@@ -68,14 +81,17 @@ Crear caravana:
 ```json
 {"rey":"MELCHOR","ofrenda":"ORO","origen":"Persia","camellos":6}
 ```
+
 Crear parada:
 ```json
 {"ciudad":"Bagdad","orden":1,"diasEstancia":1}
 ```
+
 Cambiar estado de caravana:
 ```json
 {"estado":"EN_CAMINO"}
 ```
+
 Cambiar estado de parada:
 ```json
 {"estado":"CUMPLIDA"}
@@ -96,12 +112,11 @@ El endpoint predeterminado es `http://localhost:8081/soap/estrella`. El docente 
 ## 8. Arquitectura
 `ApiHandler` recibe la petición HTTP; `SecurityMiddleware` valida el Bearer token; `RouteDispatcher` resuelve las rutas; `CaravanaController` delega en `CaravanaService`, donde viven las reglas de negocio; `CaravanaRepository` y `ParadaRepository` ejecutan SQL JDBC; `Database` crea las tablas H2; `EstrellaAdapter` encapsula la llamada SOAP; y `GlobalExceptionHandler` unifica los errores. Ver [diagrama PNG](docs/arquitectura.png) o abrir el archivo editable [arquitectura.drawio](docs/arquitectura.drawio) en https://app.diagrams.net/. El middleware, el enrutador, los controladores y el manejador global de errores están separados en clases independientes para respetar la arquitectura en capas.
 
-## 9. Microservicios (respuesta breve)
-El sistema podría separarse en un servicio de caravanas, responsable de los reyes, ofrendas, camellos y estados, y un servicio de itinerarios, responsable de las paradas, su orden y días de estancia. El servicio de navegación de la Estrella seguiría siendo externo y se consumiría mediante el adaptador SOAP. Si la navegación falla, la API no debe caerse ni avanzar la caravana: conserva el estado `DETENIDA` y responde 503 para que el cliente pueda reintentar. La separación permitiría desplegar y escalar cada responsabilidad de forma independiente.
+## 9. Microservicios
+El sistema podría dividirse en dos microservicios: **Caravanas**, encargado de los reyes, ofrendas, camellos y estados; e **Itinerarios**, responsable de las paradas, ciudades, orden y días de estancia. Cada servicio administraría sus propios datos y expondría una API para comunicarse con el otro. La navegación de la Estrella seguiría siendo un servicio externo consumido mediante SOAP. Si el servicio de itinerarios cae el 24 de diciembre a las 23:00, la API de caravanas debería continuar disponible para consultar y gestionar las caravanas, pero las operaciones que dependan de las paradas quedarían temporalmente indisponibles. Se respondería con un error controlado, sin perder datos ni modificar estados incorrectamente, y se permitiría reintentar cuando el servicio se recupere.
 
-## 10. Verificación pendiente antes de entregar
-Este proyecto es una implementación Java sin Spring Boot. Debe compilarse y ejecutarse en tu computadora y probarse contra el mock SOAP/WSDL exacto entregado por el docente. En el entorno de preparación no se pudo ejecutar Maven porque no estaba instalado; por eso no se afirma que la compilación haya sido validada. Los tokens son de demostración, no un sistema JWT de producción. La colección de Postman incluye 17 solicitudes para cubrir los casos 200/201, 400, 401, 403, 404, 409, 422 y 503. Los IDs de caravana y paradas se guardan automáticamente en variables de colección al ejecutar las solicitudes de creación. Los casos 422 de SOAP requieren el mock configurado en `NUBLADA` o una caravana `EN_CAMINO` con paradas pendientes.
-
+## 10. Verificación y consideraciones
+El proyecto se compiló y ejecutó correctamente en el entorno local mediante Maven, y la API respondió a las pruebas realizadas desde Postman. La colección incluye 17 solicitudes para cubrir los casos 200/201, 400, 401, 403, 404, 409, 422 y 503. Los IDs de caravana y paradas se guardan automáticamente en variables de colección al ejecutar las solicitudes de creación. Los casos 422 de SOAP requieren el mock configurado en `NUBLADA` o una caravana `EN_CAMINO` con paradas pendientes. Los tokens incluidos son de demostración y no constituyen un sistema de autenticación JWT para producción. Antes de la evaluación, configura y prueba el endpoint SOAP/WSDL indicado por el docente.
 
 ## 11. Casos de Postman y orden de prueba
 1. Ejecuta `01 - Crear caravana (201)`; la colección guarda automáticamente `caravanaId`.
@@ -111,5 +126,4 @@ Este proyecto es una implementación Java sin Spring Boot. Debe compilarse y eje
 5. `10B` requiere SOAP configurado para `NUBLADA`; `10C` requiere una caravana `EN_CAMINO` con paradas `PLANIFICADA`; ambos demuestran 422.
 6. `11` demuestra 503 cuando SOAP no responde. Para probar el Fault específico, configura el origen `Herodes` y utiliza el mock del docente.
 
-
-El guion sugerido para el video de sustentación está en [docs/guion_video_5_min.md](docs/guion_video_5_min.md). Para repetir la creación desde cero, detén la API y elimina la carpeta `data/` (se regenerará al iniciar); esto borra los datos locales de prueba.
+Para repetir la creación desde cero, detén la API y elimina la carpeta `data/` (se regenerará al iniciar); esto borra los datos locales de prueba.
